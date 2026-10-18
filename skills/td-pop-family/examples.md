@@ -8,7 +8,9 @@ gridPOP → noisePOP (displace P) → noisePOP (create Color) → nullPOP
 
 ## Particle Simulation (Feedback)
 
-sourcePOP → feedbackPOP → [force chain] → nullPOP (loop back automatic)
+sourcePOP → feedbackPOP → [force chain] → null_state
+
+Set feedbackPOP `targetpop` to `null_state`, then initialize and start the simulation.
 
 ## Built-in Particles
 

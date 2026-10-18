@@ -10,8 +10,8 @@ Target expr: `op('null_lfo')[0]`
 ## Smooth Random
 `noiseCHOP → filterCHOP → nullCHOP`
 
-## Selective Cook Barrier
-`[source] → nullCHOP (cooktype=selective)` — prevents upstream cooking every frame
+## Selective Downstream Cooking
+`[source] → nullCHOP (cooktype=selective)` — suppresses downstream recooking when the selected checks detect no change; upstream nodes still cook when their inputs change, even without downstream demand
 
 ## 4D Noise Rotation (Installation-Safe Animation)
 lfoCHOP with 2 channels (sin, cos), phase expr `me.chanIndex * 0.25`, very low freq (0.005 Hz).

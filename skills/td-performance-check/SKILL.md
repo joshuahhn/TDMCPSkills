@@ -11,9 +11,10 @@ Optimization patterns for TouchDesigner. Core principle: let TD do the work — 
 
 TD recognizes common Python patterns and runs them in C++ instead:
 - **Optimized**: `op('lfo1')['chan1']`, basic math, `abs()`, `math.sin()`
-- **Unoptimized**: complex logic, conditionals, custom functions, extension calls
+- **Conditional expressions**: single-line `if` expressions are supported when every token is supported; expression complexity alone does not decide optimization
+- **Unoptimized**: expressions containing unsupported tokens, such as unsupported custom functions or extension calls
 
-An optimized reference is essentially free. Unoptimized = full Python interpreter every frame per parameter.
+Check the parameter's Optimized/Unoptimized status before rewriting it. Expression caching separately avoids recalculation when dependencies have not changed; unoptimized does not imply evaluation every frame.
 
 ## Operators Over Python
 
@@ -66,9 +67,9 @@ Use `inspect_values` to check runtime state. TOPs: `sample_grid=8` for stats + g
 
 ## Cooking Rules
 
-Operators cook when:
-- In a visible output chain (connected to displayed/rendered output)
-- Visible in an open network editor pane
+Operators normally cook when they receive a cook request and have a reason to recompute:
+- Downstream operators, parameter references, displayed panels, or output devices request their data
+- A visible viewer requests their data
 - Explicitly force-cooked: `op.cook(force=True)`
 
-`viewer=True` is a UI hint, not a cook guarantee. Ops inside unopened COMPs won't cook.
+`viewer=True` alone is not a cook guarantee. Operators inside unopened COMPs can cook whenever there is demand; opening the network is not required.

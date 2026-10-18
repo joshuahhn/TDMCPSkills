@@ -11,12 +11,12 @@ Organize operator networks into clean, readable layouts. Only moves, resizes, co
 
 0. **Load `td-node-layout` skill** — required for spacing, padding formulas, and containment checks. Do not skip this step
 1. **Survey** — `list_operators(path, depth=2)` for positions, sizes, overlaps, and existing annotations. Use `get_connections(path, graph=true)` for full signal flow topology in execution order
-2. **Delete old annotations** — destroy any existing `annotateCOMP` ops before reorganizing
-3. **Plan layout** — identify functional groups, chains, parallel branches. Independent groups go **side-by-side** when they have similar vertical extent (saves space vs stacking). Use actual `nodeWidth`/`nodeHeight` to compute bounding boxes. Replace long cross-network wires with selectCHOP `chop` parameter references — especially for merge inputs and fan-out patterns
+2. **Preserve existing annotations** — reuse or update existing annotations within the agreed cleanup scope, deleting only confirmed replacements and preserving protected component internals
+3. **Plan layout** — identify functional groups, chains, parallel branches. Independent groups go **side-by-side** when they have similar vertical extent (saves space vs stacking). Use actual `nodeWidth`/`nodeHeight` to compute bounding boxes. Preserve functional operators, wiring, references, names, parents, and docks during layout cleanup, and scope any rewiring separately with its own behavioral verification
 4. **Apply layout** — use `reposition_operators` to batch-move operators (see Positioning below)
 5. **Check vertical spacing** — ensure enough Y gap between groups for annotation headers (60px top padding) + 20px gap between annotations. If groups are too close, move ops down before annotating
 6. **Compute annotation bounds** — for each group, find min/max X/Y from actual operator positions + sizes, then add padding (25px sides/bottom, 60px top). Don't guess dimensions — calculate them
-7. **Add annotations** — `annotation(parent_path=..., comment=...)` around every functional group. All groups get annotated, not just complex ones
+7. **Add annotations** — before adding annotations to a scripted container, inspect child-enumeration consumers for panel-only assumptions such as `display`, and scope any required runtime fix separately with focused behavioral verification. Then use `annotation(parent_path=..., comment=...)` around every functional group. All groups get annotated, not just complex ones
 8. **Verify containment** — for each annotation, confirm all ops in the group satisfy: `op.nodeY >= ann.nodeY + 25` (bottom padding) and `op.nodeY + op.nodeHeight <= ann.nodeY + ann.nodeHeight - 60` (60px top padding = 25px content gap + ~35px header). If any op fails, fix the annotation or move the op
 9. **Verify no annotation overlaps** — check that no two annotations share any area. For each pair: `ann1.nodeY + ann1.nodeHeight + 20 <= ann2.nodeY` (vertically stacked) or `ann1.nodeX + ann1.nodeWidth + 20 <= ann2.nodeX` (side by side). Fix before proceeding
 10. **Apply colors** — only for special patterns (see Operator Colors below). Do not color by family
@@ -53,7 +53,6 @@ Load the `td-node-layout` skill for full positioning rules (spacing, flow direct
 
 - **Annotations are properties not parameters** — `nodeX`, `nodeY`, `nodeWidth`, `nodeHeight` must be set via `execute_code`, not `set_parameters`
 - **Text dumped in the title** — `annotation(comment=...)` sets `Titletext` only; explanation must go in `Bodytext` via `set_parameters` (see Annotation Rules)
-- **Forgetting to delete old annotations** — leftover `annotateCOMP` ops overlap with new ones
 - **Not verifying containment** — after creating annotations, check all ops are inside the box and below the header
 - **Insufficient vertical spacing** — minimum ~105px Y gap between last op in one group and first op in the next (25px bottom padding + 20px gap + 60px top padding)
 - **Never use `networkbox` mode** — hides the op from Python, making it undeletable via code
