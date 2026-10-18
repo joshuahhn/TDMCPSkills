@@ -28,6 +28,8 @@ lack." TouchDesigner makes layout/topology *visual*; that is exactly your blind 
 
 ## Capability routing
 
+Before promising manual editability, identify the requested properties, their runtime writers, what refresh or rebuild overwrites, and the supported place for persistent edits.
+
 - **Behavior / logic / data → code on disk** (GLSL, Python extensions, parameter expressions,
   DAT tables). Author in text; let TD sync along. This is your strong zone.
 - **Structure / topology / layout → minimize**, and treat spatial judgment as human-owned or a
@@ -51,6 +53,8 @@ strong zone automatically — the work becomes text-on-disk plus verification.
   **Always pass an explicit `file_path`** — the auto-derived path forks and orphans on rename.
 - Live-reload verified: **GLSL recompiles**, **Python extensions auto-re-init** on an external disk
   edit. Caveat: re-init runs `__init__`, so **in-memory extension state is wiped**.
+  Treat partial source patches as reloads, snapshot parameters and drafts that must survive,
+  then compare after observable initialization completion and restore unintended drift.
 - baseCOMP extensions have **no** auto-dock DAT — author the class skeleton yourself.
 
 ## Close every loop by looking

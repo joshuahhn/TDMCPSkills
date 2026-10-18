@@ -30,8 +30,8 @@ Validate completed builds. Check for errors, verify structure, diagnose root cau
 
 - **Always trace upstream** — if error op looks correct, follow input chain to find actual broken node
 - **Chain reactions** — 5 errors from 1 missing connection = 1 fix, not 5. Group them
-- **False errors from cook order** — on first cook, some ops error because upstream hasn't cooked yet. `pulse_parameter` to reinit feedback, recheck
-- **Feedback sims need time** — don't judge on frame 0, `pulse_parameter` for init+start, wait, then check
+- **False errors from cook order** — inspect upstream readiness and recheck after observable initialization completion; keep the running network's state intact
+- **Feedback sims need time** — observe an already running simulation before judging its output; report when initialization prevents verification. Run reset/init/start tests only within existing test authorization or on an authorized disposable copy
 - **Read shader code** — GLSL errors need actual code to diagnose, not just the error message
 
 ## Verdict Format

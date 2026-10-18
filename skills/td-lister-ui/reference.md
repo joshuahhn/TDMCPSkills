@@ -13,7 +13,7 @@
 - `help` — tooltip (`*` = cell value)
 - `width` — pixels or `auto`
 - `stretch` — fill available space (0/1)
-- `sizable` — user drag-resize (0/1)
+- `sizeable` — user drag-resize (0/1)
 - `editable` — 0=none, 1=click, 2=dbl-click
 - `draggable` — enable dragging (0/1)
 - `clickOnDrag` — click on drag start (0/1)
@@ -29,7 +29,7 @@
 - `blank` — hide text, retain data (for topPath graphics)
 - `rowNum` — auto row numbers
 - `constant` — repeat literal sourceData across all cells
-- `eval` — evaluate as Python (`object` = row object)
+- `eval` — evaluate as Python (`rowObject` = row object)
 - `color` — `[r, g, b, a]` or `[r, g, b, a, 'label']`
 
 ## Lister Parameters
@@ -72,26 +72,28 @@
 ## Callback info Keys
 
 - `ownerComp` — the lister listCOMP
-- `row` — row number (0=header, -1=past end)
+- `row` — displayed row number (0=header when enabled, -1=past end)
 - `col` / `colName` — column number / name
 - `cellText` — cell text content
-- `rowData` — full row dict (includes rowObject)
+- `rowData` — full row dict (includes `rowObject` and `sourceIndex`, the original source row index)
 
 ## Callback Examples
 
 ```python
-# Delete button
 def onClick(info):
+    lister = info['ownerComp']
+    row = info['row']
+    if row < 0 or (row == 0 and lister.par.Header.eval()):
+        return
     if info.get('colName') == 'close':
-        info['ownerComp'].DeleteRows([info['row']])
-
-# Toggle checkbox
-def onSelectRow(info):
-    if info.get('colName') == 'state':
-        table = info['ownerComp'].par.Inputtabledat.eval()
-        row = info['row']
-        current = table[row, 'state'].val
-        table[row, 'state'] = 'False' if current == 'True' else 'True'
+        lister.DeleteRows([row])
+    elif info.get('colName') == 'state':
+        table = lister.par.Inputtabledat.eval()
+        source_index = info['rowData'].get('sourceIndex')
+        if table is None or source_index is None:
+            return
+        current = table[source_index, 'state'].val
+        table[source_index, 'state'] = 'False' if current == 'True' else 'True'
 
 # Right-click menu
 def onClickRight(info):
@@ -131,7 +133,7 @@ def onClickRight(info):
 **Callback issues:**
 15. **Two callback systems** — `callbacks` (builtin, lowercase) → `./internalCallbacks` (clone machinery). `Callbackdat` (custom, capitalized) → your external callbacks in listerConfig. Confusing them is fatal
 16. Advancedcallbacks=True — required for onClick, onInitCell, onSelectRow to fire
-17. Row 0 = header, row -1 = past end — guard for both in callbacks
+17. Guard header and off-cell events; use `rowData['sourceIndex']` for source-table writes after sorting/filtering, not the displayed row number
 18. DeleteRows takes a list — `DeleteRows([row])` not `DeleteRows(row)`
 19. cellLook required for clickable columns — without it, clicks route as text selection
 

@@ -59,6 +59,8 @@ versions are tracked in `VERSION` and the Claude plugin manifests.
   other's name. `--target agents` is gone; use `--target codex` or `--target agy`.
 
 ### Fixed
+- Preserve existing annotations, functional wiring, companion DATs, and user state during layout cleanup, review, and extension reloads.
+- Correct Lister click callbacks and source-row mapping, extension promotion, cooking guidance, POP uniforms and feedback targets, GLSL Copy accessors, and annotation spacing.
 - `status` crashed with a `TypeError` when the registry contained a host without a
   global skills path.
 

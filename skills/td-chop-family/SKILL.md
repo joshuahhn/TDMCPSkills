@@ -63,7 +63,7 @@ When a scriptCHOP is driven by an extension, **always** use `modoutsidecook=True
 
 End every CHOP chain with a `nullCHOP`. Other ops reference it via expression: `op('null_name')['channel']`
 
-Set `cooktype=selective` on output nulls that don't need per-frame updates.
+Use `cooktype=selective` when unchanged values should suppress downstream recooking; upstream nodes may still cook whenever their inputs change, even without downstream demand.
 
 ## Debugging
 
@@ -78,7 +78,7 @@ Use `inspect_values(path, include_samples=true)` to read full sample arrays from
 
 ## Pitfalls
 
-- **No selective cooking on output** — forces entire upstream chain to cook every frame
+- **Selective cooking affects downstream** — compare output values to suppress downstream recooking; profile the upstream cost rather than treating the null as an upstream cook barrier
 - **absTime.seconds for animation** — floats lose precision after hours, use lfoCHOP or timerCHOP
 - **CHOP reference syntax** — use `op('path')['channelname']` not `op('path').chan('name')`
 - **Rate mismatch** — different CHOPs may run at different sample rates, use resampleCHOP

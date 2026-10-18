@@ -30,7 +30,7 @@ signatures, clone sources.
 - DAT == module == class — one identifier; `Ext`/`EXT` suffix optional. `me.mod("<Name>").<Name>(me)`
   is an equivalent shorthand for the step-5 binding.
 - **Capitalized** members = promoted (external via `comp.Member`); **lowercase/underscore** = internal.
-- Promotion exposes Capitalized **methods**; use `@property` (or `TDF.createProperty`) for promoted data.
+- Promotion exposes Capitalized **methods and attributes**; use `TDF.createProperty` when data changes must trigger dependent updates.
 - Store `self.ownerComp` in `__init__`.
 
 ## Skeleton
@@ -138,13 +138,13 @@ Extension DAT and parameterexecuteDAT at X=-200 (left of origin). Main operator 
 ## Pitfalls
 
 - **ext0object as expression** — must be constant-mode string, not expression
-- **ext0promote only promotes methods** — not attributes; use `@property` for data
+- **Promotion and dependency tracking differ** — Capitalized attributes can be promoted; dependable properties provide automatic downstream updates
 - **copyNumpyArray outside onCook** — stage data on extension, call from onCook only
 - **Language not set on extension DAT** — always `language=python`
 - **No parameterexecuteDAT** — extension won't react to custom parameter changes
 - **Module-level heavy imports** — import torch/numpy in a setup method, not at module top
 - **Name collision on create** — TD silently appends numbers; verify `.name` matches requested
-- **HTTP/urllib in main thread** — blocks cook loop; use webClientDAT or `run()` with `delayFrames`
+- **HTTP/urllib in main thread** — blocks the cook loop; use `webClientDAT` or a worker, keeping TD object access on the main thread. `run(delayFrames=...)` defers execution without offloading the blocking work
 - **Forgetting reinitextensions (in-DAT edits only)** — code edited *inside* the DAT doesn't reload
   until pulsed. A **file-synced** DAT auto-re-inits on external disk edit. Either way, re-init wipes
   plain attributes — persist anything that must survive via `StorageManager` (see Sync to File)

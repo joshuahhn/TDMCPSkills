@@ -10,7 +10,7 @@ Standard positioning rules for TouchDesigner networks. Loaded by td-build-planni
 ## Core Spacing
 
 - **Horizontal spacing**: 175px (130 width + 45 gap) — standard for POP/TOP/CHOP chains
-- **Vertical spacing**: 125px between parallel chains
+- **Vertical spacing**: 125px between parallel chains within one group; between separately annotated groups, use actual group height + 25px bottom padding + 60px top padding + 20px gap (195px for a 90px group; 210px is the usual default)
 - **Flow**: left-to-right always. No backward connections (exception: feedback loops)
 - **Main chain Y**: 0
 - **Coordinates**: Y-axis up, `nodeY` = bottom edge
@@ -33,8 +33,8 @@ Standard positioning rules for TouchDesigner networks. Loaded by td-build-planni
 - **Other text DATs below their operator** — 125px below associated Python op
 - **Bypass null pattern** — when a switch bypasses an effect, place bypass null directly above the effect (same X, Y + 125), not above the switch
 - **Secondary inputs** — operators feeding secondary inputs (index 1+) go *below* the main chain and at the *same X as the preceding main-chain op* (not the target), so wires flow left-to-right and don't cross the primary input
-- **selectCHOP `chop` param** — use `chop` parameter instead of physical wires to reference remote CHOPs. Eliminates long cross-network wires and keeps regions self-contained. Especially useful for fan-out (one source → many consumers)
-- **Merge feeder column** — when a mergeCHOP has many inputs, create selectCHOPs (via `chop` param) at the same X left of merge. Order by Y to match input index (highest Y = input 0) — connection lines won't cross
+- **selectCHOP `chop` param** — for new builds or separately scoped rewiring, use `chop` parameter references for remote CHOPs. Preserve existing operators and wiring during layout-only cleanup
+- **Merge feeder column** — when selectCHOPs are already present or their creation is in scope, place them at the same X left of merge. Order by Y to match input index (highest Y = input 0) so connection lines won't cross
 
 ## Annotation Layout
 

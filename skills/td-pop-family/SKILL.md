@@ -28,7 +28,7 @@ GPU-accelerated point operations. POPs replace SOPs for 3D geometry with massive
 
 ## Feedback Simulation
 
-feedbackPOP has 1 input (reset/initial geometry). Loop back from output null is automatic.
+feedbackPOP has 1 input (reset/initial geometry). Set `targetpop` to the downstream output null whose previous-frame data should feed back; no backward wire is needed.
 - **Lifecycle**: `initializepulse` (reset) → `startpulse` (begin playback) → `play` (pause/resume)
 - **particlePOP same lifecycle** — also requires `initializepulse` then `startpulse` to reset and run
 - **Reinit after attribute changes**: `pulse_parameter` with `initializepulse` then `startpulse`

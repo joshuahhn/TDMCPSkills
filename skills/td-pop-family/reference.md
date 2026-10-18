@@ -111,7 +111,7 @@
 
 ## Simulation / Time
 
-- `feedbackPOP` — frame-to-frame loop (1 input = reset, loop automatic)
+- `feedbackPOP` — frame-to-frame loop (1 input = reset; set `targetpop` to the downstream output null)
 - `cachePOP` / `cacheblendPOP` / `cacheselectPOP` — store/interpolate/select cached frames
 - `trailPOP` — line strips from point history over N frames
 - `linemetricsPOP` — per-point direction/distance to neighbors along lines
@@ -196,7 +196,7 @@ void main() {
 
     // Read source geometry (input 0)
     vec3 srcPos = TDIn_P();             // current point from source
-    vec3 otherSrc = TDIn_P(0, otherIdx); // specific source point
+    vec3 otherSrc = TDIn_P(otherIdx);    // specific source point; optional second arg is array index
 
     // Read template (input 1) — defaults to TDCopyIndex() for element ID
     vec3 worldPos = TDTemplate_P();                  // template position
