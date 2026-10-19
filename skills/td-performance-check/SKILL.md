@@ -11,8 +11,8 @@ Optimization patterns for TouchDesigner. Core principle: let TD do the work — 
 
 TD recognizes common Python patterns and runs them in C++ instead:
 - **Optimized**: `op('lfo1')['chan1']`, basic math, `abs()`, `math.sin()`
-- **Conditional expressions**: single-line `if` expressions are supported when every token is supported; expression complexity alone does not decide optimization
-- **Unoptimized**: expressions containing unsupported tokens, such as unsupported custom functions or extension calls
+- **Conditional expressions**: single-line `if` expressions can be optimized when all operations, functions, members, and values are supported; complexity alone does not decide optimization
+- **Unoptimized**: using an unsupported function or member makes the expression use Python's engine; check the parameter's status rather than guessing from its syntax
 
 Check the parameter's Optimized/Unoptimized status before rewriting it. Expression caching separately avoids recalculation when dependencies have not changed; unoptimized does not imply evaluation every frame.
 

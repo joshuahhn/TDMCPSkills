@@ -185,6 +185,8 @@ Copies source geometry N times with custom GLSL per copy.
 - `sampler`, `vec`, `buffer`, `array`, `const` sequences — same as glslPOP
 - `attr` sequence — create custom output attributes (same as glslPOP)
 
+For GLSL Copy POP, `TDIn_P(elementId, arrayIndex)` reads the source input; `arrayIndex` is optional and defaults to 0. Standard GLSL POP uses `TDIn_P(inputIndex, elementId)` instead.
+
 **Buffer access in compute shader:**
 ```glsl
 void main() {

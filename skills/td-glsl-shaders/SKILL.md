@@ -44,7 +44,7 @@ Up to 32 uniform vectors via operator parameters (`vec0name`, `vec0valuex`, etc.
 
 **Color uniforms → Colors page (TOP/MAT)**: for a `uniform vec4` color, use the **Colors** sequence (`color0name` + `color0rgbr/g/b` + `color0alpha`) instead of the Vectors page — a 4-component RGBA uniform with a color-picker swatch. Same rule: type is inferred from the GLSL declaration, so declare `uniform vec4 uName;` or it reads zero. (Samplers live on the **Samplers** page, fixed arrays on **Arrays**.)
 
-**POP (glslPOP/glslcopyPOP)**: uniforms ARE auto-declared with the type selected by `vecNtype` (e.g. `vec0type=vec3`). Set the matching value components and keep the generated declaration. Check live `get_help` for types supported by the target build.
+**POP (glslPOP/glslcopyPOP)**: set the uniform name with `vec0name`, select its type with `vec0type` (e.g. `vec3`), then set `vec0valuex/y/z`. TD generates the declaration; do not redeclare it in the shader. Check live `get_help` for types supported by the target build.
 
 To use N uniforms, first set the sequence block count, then access `vec0name`, `vec1name`, etc.
 
@@ -85,7 +85,7 @@ See the `td-dat-family` skill for the full canonical flow.
 
 ## Pitfalls
 
-- **Uniforms not declared in shader** — compiles but reads zero
+- **Uniform declarations** — declare TOP/MAT uniforms in the shader; use generated declarations for POP uniforms
 - **TDPerlinNoise() in GLSL POP** — not available in compute shaders, only TOP/MAT
 - **Creating separate textDATs for glslTOP** — rename and reuse auto-created docked DATs
 - **Not checking `<name>_info` for compile errors** — `.errors()` only shows "Compile failed"; read the docked infoDAT for actual line numbers and error details

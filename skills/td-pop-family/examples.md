@@ -10,7 +10,7 @@ gridPOP → noisePOP (displace P) → noisePOP (create Color) → nullPOP
 
 sourcePOP → feedbackPOP → [force chain] → null_state
 
-Set feedbackPOP `targetpop` to `null_state`, then initialize and start the simulation.
+Set feedbackPOP `targetpop` to `null_state` to read its previous-frame output. For a new simulation, initialize and start; when reviewing an existing simulation, follow `td-review-network` before resetting it.
 
 ## Built-in Particles
 
