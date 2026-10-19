@@ -144,7 +144,7 @@ Extension DAT and parameterexecuteDAT at X=-200 (left of origin). Main operator 
 - **No parameterexecuteDAT** — extension won't react to custom parameter changes
 - **Module-level heavy imports** — import torch/numpy in a setup method, not at module top
 - **Name collision on create** — TD silently appends numbers; verify `.name` matches requested
-- **HTTP/urllib in main thread** — blocks the cook loop; use `webClientDAT` or a worker, keeping TD object access on the main thread. `run(delayFrames=...)` defers execution without offloading the blocking work
+- **HTTP/urllib in main thread** — blocks the cook loop; use `webClientDAT` for HTTP. For background threads and delayed execution, follow `td-dat-family` Pitfalls; extension methods that read or write TD objects must stay on the main thread
 - **Forgetting reinitextensions (in-DAT edits only)** — code edited *inside* the DAT doesn't reload
   until pulsed. A **file-synced** DAT auto-re-inits on external disk edit. Either way, re-init wipes
   plain attributes — persist anything that must survive via `StorageManager` (see Sync to File)

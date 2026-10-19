@@ -27,6 +27,7 @@ versions are tracked in `VERSION` and the Claude plugin manifests.
   is an alternative that symlinks a checkout into that same directory.
 
 ### Changed
+- Move repository instructions to `AGENTS.md`; keep `CLAUDE.md` as an `@AGENTS.md` reference.
 - **`agy` gained its skills paths**: `~/.gemini/antigravity-cli/skills/` globally and
   `<workspace>/.agents/skills/` per project, both plain directory copies. The project path is
   confirmed — skills installed there mount in the interactive TUI, checked in a folder where
@@ -59,6 +60,7 @@ versions are tracked in `VERSION` and the Claude plugin manifests.
   other's name. `--target agents` is gone; use `--target codex` or `--target agy`.
 
 ### Fixed
+- Clarify Lister source-table checks, supported expression operations, thread-safe data handling, POP uniform declarations, feedback setup, and GLSL Copy accessor arguments.
 - Preserve existing annotations, functional wiring, companion DATs, and user state during layout cleanup, review, and extension reloads.
 - Correct Lister click callbacks and source-row mapping, extension promotion, cooking guidance, POP uniforms and feedback targets, GLSL Copy accessors, and annotation spacing.
 - `status` crashed with a `TypeError` when the registry contained a host without a

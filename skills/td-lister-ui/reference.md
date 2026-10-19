@@ -79,6 +79,8 @@
 
 ## Callback Examples
 
+For source-table updates, return without writing if `Inputtabledat` resolves to `None` or `rowData['sourceIndex']` is missing. Use the source index after sorting or filtering.
+
 ```python
 def onClick(info):
     lister = info['ownerComp']

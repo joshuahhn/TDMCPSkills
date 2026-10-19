@@ -119,6 +119,8 @@ Example: `/project1/MyEffect/scripts/helper` → `code/py/MyEffect/scripts/helpe
 - **Language not set** — textDAT defaults to `plain`, no syntax highlighting or error checking
 - **Using textDAT for tables** — use tableDAT for row/column data
 - **chopexec without selective cooking** — can fire excessively, use with quantized/selective nullCHOP upstream
-- **Blocking Python in callbacks** — use `webClientDAT` for HTTP or a worker for blocking work; keep TD object access on the main thread. `run(delayFrames=...)` schedules work later on the main thread; it does not offload blocking work
+- **HTTP in callbacks** — use `webClientDAT` for HTTP requests
+- **Background threads** — use only for work that does not access TD objects. Copy inputs into plain Python data on the main thread; return results through a queue and apply them on the main thread. Keep all OP, COMP, and Parameter reads and writes on the main thread
+- **Delayed execution** — `run(delayFrames=...)` schedules work later on the main thread; blocking work still blocks when it runs
 - **Missing callback DAT** — extensions won't react to parameter changes without parameterexecuteDAT
 - **Silently-inert execute DAT** — `*executeDAT` with `active=true` and triggers enabled but the source par empty (`chop`/`dat`/`op`/`panel`) fires nothing and raises no error. Always set the source par when creating one
