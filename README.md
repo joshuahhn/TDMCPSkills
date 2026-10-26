@@ -4,7 +4,7 @@ Portable Agent Skills for TouchDesigner. Teaches AI coding agents how to build T
 
 19 skills cover TOPs, CHOPs, POPs, SOPs, GLSL, materials, components, UI, and end-to-end workflow. See [SKILLS.md](SKILLS.md) for the full list.
 
-> **The `td-` prefix is reserved.** Installing skills — via the in-TD component, the plugin, or `install.py` — **manages the entire `td-` namespace** in the target skill directory: any `td-*` skill the current release no longer ships is removed on update. Author your own skills under your **own prefix** (e.g. `mystudio-foo`); anything named `td-*` is owned by this system and may be replaced or deleted without warning.
+> **The `td-` prefix is reserved.** Installing skills — via the in-TD component or the plugin — **manages the `td-` skills it installed**: any `td-*` skill it previously installed and the current release no longer ships is removed on update. A `td-*` folder it did not install is left alone. Author your own skills under your **own prefix** (e.g. `mystudio-foo`); anything named `td-*` is owned by this system and may be replaced or deleted without warning.
 
 Three separate pieces work together:
 
@@ -18,47 +18,58 @@ Three separate pieces work together:
 | --- | --- | --- |
 | Claude Code | `~/.claude/skills/` · `.claude/skills/` | `.mcp.json` / `~/.claude.json` (plugin auto-registers) |
 | Codex | `~/.codex/skills/` · `.agents/skills/` | `~/.codex/config.toml` |
-| Gemini CLI | `~/.gemini/skills/` · `.gemini/skills/` | `.gemini/settings.json` |
 | Antigravity (`agy`) | `~/.gemini/antigravity-cli/skills/` · `.agents/skills/` | `~/.gemini/config/mcp_config.json` |
-| OpenCode | not located | `opencode.json` |
+| OpenCode v1 | not located | `opencode.json` / `~/.config/opencode/opencode.jsonc` |
+| OpenCode v2 (beta, `opencode2`) | `~/.config/opencode/skills/` · `.agents/skills/` | `opencode.json` / `~/.config/opencode/opencode.json(c)` |
 
-Each row is the global path followed by the project path. Codex and Antigravity share
-`<project>/.agents/skills/`, so one project install serves both. There is no single portable
-directory that all hosts read — `~/.agents/skills/` was tried and no host was found to read it.
+Each row is the global path followed by the project path. In practice there are two project
+roots: `.claude/skills/` for Claude Code and `.agents/skills/` for Codex, Antigravity and
+OpenCode v2, which share it — so one project install serves all three. Note `~/.agents/skills/` (the home-directory
+form) is read by nothing; only the project-relative `.agents/` is real.
+
+Gemini CLI was retired by Google on 2026-06-18 and replaced by Antigravity (`agy`), so it is
+no longer a target. Legacy access continues only for enterprise licences and direct paid API
+keys.
 
 ## Requirements
 
 - One of the supported agent CLIs above
 - [TDMCP](https://github.com/TouchDesigner/TDMCP) installed and running in TouchDesigner
-- Python 3.7+ (only for the script install path)
 
 ## Quick install
 
-```bash
-git clone https://github.com/TouchDesigner/TDMCPSkills.git
-cd TDMCPSkills
-python install.py install --target claude
-```
+**This repo is skills content. Installation lives in the TDMCP component.** There is no
+installer script here.
 
-Pick the target that matches your CLI (see **Install targets** below). Project-local instead
-of global:
+On the component's **MCP** page pick the agent and scope, then pulse **Install Skills**:
 
-```bash
-python install.py install --target codex --project /path/to/your/project
-```
+| Parameter | Page | Meaning |
+| --- | --- | --- |
+| `Install For` | MCP | which agent — one at a time: Claude Code, Codex, Antigravity, Cursor, OpenCode |
+| `Install Scope` | MCP | rebuilt per agent to the scopes it supports; `user` writes to your home directory, `project` into the current project |
+| `Skills Source` | Skills | a checkout of this repo, or **blank to download the published release** |
+| `Skills Version` | Skills | a release tag to pin, or blank for the latest |
 
-Installing skills does **not** configure the MCP connection — do that once per host (next section).
+`Skills Status` reports what landed where, and its tooltip lists the resolved directories.
+The Skills page's `Installed Locations` shows every destination currently holding skills.
+
+Claude Code users can also install from the plugin marketplace (below), which registers the
+MCP connection at the same time.
+
+Installing skills does **not** configure the MCP connection — do that once per host (next
+section), or copy the ready-made command from the component's **Show Client Commands**
+button.
 
 ## TDMCP MCP configuration
 
-TDMCP serves MCP over HTTP at `http://localhost:13316/mcp`. Start it inside TouchDesigner before using any agent.
+TDMCP serves MCP over HTTP at `http://127.0.0.1:13316/mcp`. Start it inside TouchDesigner before using any agent.
 
 **Claude Code** — project `.mcp.json` (or `~/.claude.json`):
 
 ```json
 {
   "mcpServers": {
-    "tdmcp": { "type": "http", "url": "http://localhost:13316/mcp" }
+    "tdmcp": { "type": "http", "url": "http://127.0.0.1:13316/mcp" }
   }
 }
 ```
@@ -67,26 +78,35 @@ TDMCP serves MCP over HTTP at `http://localhost:13316/mcp`. Start it inside Touc
 
 ```toml
 [mcp_servers.touchdesigner]
-url = "http://localhost:13316/mcp"
+url = "http://127.0.0.1:13316/mcp"
 ```
 
-**Gemini CLI** — project `.gemini/settings.json` (or `~/.gemini/settings.json`):
+**Antigravity (`agy`)** — global `~/.gemini/config/mcp_config.json`, or carried by a plugin
+at `<project>/.agents/plugins/<name>/mcp_config.json` and registered with
+`agy plugin install <path>`:
 
 ```json
 {
   "mcpServers": {
-    "tdmcp": { "httpUrl": "http://localhost:13316/mcp" }
+    "touchdesigner": { "serverUrl": "http://127.0.0.1:13316/mcp" }
   }
 }
 ```
 
-**OpenCode** — project `opencode.json` (or `~/.config/opencode/opencode.json`):
+`agy mcp list` shows only the global file — plugin-provided servers appear in the interactive
+TUI's MCP Servers panel instead, with their tools namespaced `<plugin>_<server>`.
+
+**OpenCode** — v1 uses a flat `"mcp": { "tdmcp": {…} }`; the v2 beta nests it under `servers`, as below. Project `opencode.json` (or `~/.config/opencode/opencode.json(c)`).
+In v2, `codemode: false` gives the model the tools directly instead of through OpenCode's JavaScript
+`execute` layer, which small local models misuse:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "tdmcp": { "type": "remote", "url": "http://localhost:13316/mcp", "enabled": true }
+    "servers": {
+      "tdmcp": { "type": "remote", "url": "http://127.0.0.1:13316/mcp", "codemode": false }
+    }
   }
 }
 ```
@@ -102,45 +122,37 @@ In Claude Code:
 
 This installs the 19 distributed skills and auto-registers the TDMCP MCP connection. Update with `/plugin marketplace update touchdesigner`; uninstall with `/plugin uninstall tdmcp-skills`.
 
-Script alternative for Claude Code:
+## Install — Claude Desktop
 
-```bash
-python install.py install --target claude
-```
+Claude Desktop does not read skills from disk. Download `TDMCP-Skills-<version>.zip`
+from [Releases](https://github.com/TouchDesigner/TDMCPSkills/releases), open
+**Settings → Plugins → Add → Upload a plugin**, drop the file in and click **Upload**.
+The skills appear as one plugin, **TDMCP Skills**. To update, upload the newer
+release; to remove, use the plugin's menu under **Plugins → Yours**.
 
-## Install targets
+The plugin carries the skills only. The connection to TouchDesigner comes from
+the `TDMCP.mcpb` extension in the [TDMCP release](https://github.com/TouchDesigner/TDMCP/releases).
 
-```bash
-python install.py install --target claude        # ~/.claude/skills/  (Claude Code)
-python install.py install --target gemini        # ~/.gemini/skills/  (Gemini CLI)
-python install.py install --target agy           # ~/.gemini/antigravity-cli/skills/  (Antigravity)
-python install.py install --target all           # the verified default set (currently: claude)
-python install.py install --target codex         # ~/.codex/skills/   (Codex; project scope is .agents/skills/)
+## Where skills land
 
-python install.py status --target claude         # install status + update check
-python install.py uninstall --target claude
-```
+| Target | Global (`user` scope) | Project (`local` scope) |
+| --- | --- | --- |
+| Claude Code | `~/.claude/skills/` | `.claude/skills/` |
+| Codex | `~/.codex/skills/` | `.agents/skills/` |
+| Antigravity (`agy`) | `~/.gemini/antigravity-cli/skills/` | `.agents/skills/` |
 
 Notes:
 
-- Each target keeps its own manifest; install/status/uninstall never touch another target.
-- The installer only ever removes skill directories recorded in its own manifest. Conflicting `td-*` directories it doesn't own stop the install with an error (override with `--replace`).
-- Pick **one primary target per host** — installing the same skills in multiple discovery locations can produce duplicates. `status` reports other known installs.
-- Running `install.py` with no `--target` defaults to `claude`.
+- Each destination keeps its own manifest; installing to one never touches another.
+- The installer removes only skills its own manifest recorded. A `td-*` directory it did not
+  install — another tool's, or hand-made — is left alone.
 - **One project install can serve two hosts.** Codex and Antigravity both read
-  `<project>/.agents/skills/`, so a single project-scope install covers both. Their
-  global paths differ (`~/.codex/skills/` vs `~/.gemini/antigravity-cli/skills/`), so
-  user-scope installs stay separate.
-- **Gemini needs a trusted folder.** Skills copied into `~/.gemini/skills/` are discovered
-  with no CLI step, but Gemini disables MCP servers — and suppresses user-level ones —
-  in an untrusted folder, so trust the project folder or nothing connects. `gemini skills
-  link <path>` is an alternative that symlinks a checkout into the same directory, so
-  edits show up live.
-- If no local repo is detected, `install.py install` fetches the latest from GitHub directly.
-
-### Migrating an existing `~/.claude/skills` install
-
-Nothing breaks: `--target claude` preserves the previous behavior exactly. To also use another host, run that host's target as well (e.g. `--target codex`). Each target keeps its own manifest, so the installs are independent.
+  `<project>/.agents/skills/`, so installing for either at project scope covers both. Their
+  global paths differ, so `user`-scope installs stay separate.
+- Pick **one scope per host**. Installing the same skills both globally and project-locally
+  works — project wins — but it is two things to keep updated.
+- With `Skills Source` blank the component downloads the latest **release**, not `main`.
+  `main` is the rolling line; a tag is the sanctioned subset.
 
 ## Validation
 
@@ -164,11 +176,8 @@ git checkout -b my-custom-skills
 
 Edit any skill under `skills/`, run `python validate.py`, then pick a testing loop:
 
-**Via the script** — reinstalls globally, available in every project:
-
-```bash
-python install.py install --target claude   # or codex / gemini / agy
-```
+**Via the component** — point `Skills Source` at your working tree and pulse
+**Install Skills**. Re-pulse after each edit.
 
 **Via the plugin (Claude Code)** — install this working tree as a local marketplace (fastest iteration; no push needed):
 
@@ -188,9 +197,9 @@ git merge upstream/main
 
 ### Contributor skills
 
-Contributor-only skills live in this repo's `.claude/skills/` and auto-load only when Claude Code is working inside a clone of TDMCPSkills. They are **not** distributed via the plugin or `install.py`.
+Contributor-only skills live in this repo's `.claude/skills/` and auto-load only when Claude Code is working inside a clone of TDMCPSkills. They are **not** distributed via the plugin or the component.
 
-**`/td-skills-local`** — legacy helper for installing skills into a specific project's `.claude/skills/`. Mostly superseded by the plugin install path.
+**`/td-skills-local`** — drives the component's Skills page to install into a specific project. Useful when you want project-local skills without clicking through the parameter page.
 
 ## Compatibility notes
 
